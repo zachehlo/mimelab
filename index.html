@@ -72,7 +72,7 @@
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             margin-top: 20px;
-            transform: translateY(20px); /* Start a bit lower */
+            transform: translateY(20px); /* Start slightly lower */
             opacity: 0;
             transition: transform 0.5s ease-in-out, opacity 0.5s ease-in-out;
         }
@@ -90,11 +90,18 @@
         #dnsResults p {
             margin: 5px 0;
             font-size: 14px;
+            white-space: pre-wrap; /* Preserve whitespace formatting */
         }
 
         #learnMore {
             margin-top: 15px;
             font-size: 14px;
+            opacity: 0;
+            transition: opacity 1s ease-in-out;
+        }
+
+        #learnMore.show {
+            opacity: 1;
         }
     </style>
 </head>
@@ -142,7 +149,7 @@
                 hasMovedUp = true;
             }
 
-            // Hide previous results, reset animation
+            // Hide previous results and reset animation
             resultsDiv.classList.remove('show');
 
             fetch(`https://cloudflare-dns.com/dns-query?name=${domain}&type=${recordType}`, {
@@ -154,22 +161,47 @@
             .then(response => response.json())
             .then(data => {
                 let learnMoreLink = generateLearnMoreLink(recordType);
+                let content = '';
                 if (data.Answer) {
-                    const results = data.Answer.map(record => `<p>${record.data}</p>`).join('');
-                    resultsDiv.innerHTML = `<h3>Results for ${domain} (${recordType}):</h3>${results}<div id="learnMore">${learnMoreLink}</div>`;
+                    content = data.Answer.map(record => `${record.data}`).join('\n');
                 } else {
-                    resultsDiv.innerHTML = `<p>No records found for ${domain} (${recordType}).</p><div id="learnMore">${learnMoreLink}</div>`;
+                    content = `No records found for ${domain} (${recordType}).`;
                 }
-                
+
+                resultsDiv.innerHTML = `<h3>Results for ${domain} (${recordType}):</h3><p id="typedResults"></p><div id="learnMore" class="learnMore">${learnMoreLink}</div>`;
                 resultsDiv.style.display = 'block';
-                setTimeout(() => resultsDiv.classList.add('show'), 10); // Trigger the slide-up animation for results
+                setTimeout(() => {
+                    resultsDiv.classList.add('show');
+                    typeOutText('typedResults', content, 'learnMore');
+                }, 10); // Trigger the slide-up animation for results
             })
             .catch(error => {
-                resultsDiv.innerHTML = `<p>Error fetching DNS records: ${error}</p>`;
+                const content = `Error fetching DNS records: ${error}`;
+                resultsDiv.innerHTML = `<h3>Results for ${domain} (${recordType}):</h3><p id="typedResults">${content}</p>`;
                 resultsDiv.style.display = 'block';
                 setTimeout(() => resultsDiv.classList.add('show'), 10); // Trigger the slide-up animation for results
             });
         });
+
+        function typeOutText(elementId, text, linkId, speed = 20) {
+            const element = document.getElementById(elementId);
+            const linkElement = document.getElementById(linkId);
+            let i = 0;
+
+            function type() {
+                if (i < text.length) {
+                    element.innerHTML += text.charAt(i);
+                    i++;
+                    setTimeout(type, speed);
+                } else {
+                    // After typing is complete, trigger the fade-in of the link
+                    linkElement.classList.add('show');
+                }
+            }
+
+            element.innerHTML = ''; // Clear previous content
+            type();
+        }
 
         function generateLearnMoreLink(recordType) {
             const wikiLinks = {
@@ -184,7 +216,7 @@
                 "SRV": "https://en.wikipedia.org/wiki/SRV_record"
             };
 
-            return `<a href="${wikiLinks[recordType]}" target="_blank">Click here to learn more about ${recordType} records</a>`;
+            return `<a href="${wikiLinks[recordType]}" target="_blank">Click here</a><a> here to learn more about (${recordType}) records.</a>`;
         }
     </script>
 
