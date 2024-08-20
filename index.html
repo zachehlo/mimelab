@@ -110,6 +110,22 @@
         #learnMore.show {
             opacity: 1;
         }
+
+        #disclaimer {
+            position: fixed;
+            bottom: 10px;
+            right: 10px;
+            font-size: 12px;
+        }
+
+        #disclaimer a {
+            color: #555;
+            text-decoration: none;
+        }
+
+        #disclaimer a:hover {
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
@@ -143,6 +159,10 @@
         </form>
 
         <div id="dnsResults"></div>
+    </div>
+
+    <div id="disclaimer">
+        <a href="https://github.com/zachehlo/mimelab/blob/main/responsible-usage.txt" target="_blank">Disclaimer</a>
     </div>
 
     <script>
