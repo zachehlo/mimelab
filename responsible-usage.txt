@@ -1,0 +1,46 @@
+Using this Tool Responsibly
+
+This DNS lookup tool is designed to help you retrieve specific DNS records for a given domain, including A, AAAA, CNAME, TXT, *SPF, MX, NS, SOA, PTR, and SRV records. While this tool is powerful and useful for both personal and professional purposes, it's important to use it responsibly and ethically. Below are guidelines to ensure you're using this tool in a responsible manner:
+
+1. How This Tool Works
+
+    Lookup Process: This tool queries DNS records by sending a request to a DNS resolver, such as Cloudflare's DNS-over-HTTPS (DoH) service. The resolver processes the request and returns the DNS records associated with the specified domain.
+    *SPF Record Filtering: For the "TXT (SPF)" option, the tool specifically filters out SPF records from the TXT records by identifying entries that start with "v=spf1".
+    Transparency: The tool does not store or share the results of your queries. It simply retrieves and displays the DNS information from the DNS resolver for your immediate use.
+
+2. Understand the Purpose
+
+    Educational Use: This tool is intended for educational purposes, allowing you to learn more about DNS records and how they operate. It's a great way to explore how different records are used and what information they contain.
+    Troubleshooting: If you're troubleshooting DNS issues, this tool can help you quickly identify configuration problems or validate DNS settings.
+
+3. Respect Privacy
+
+    Avoid Misuse: Do not use this tool to look up DNS records for domains you do not have the right or authorization to query. It's important to respect the privacy and security of other individuals and organizations.
+    No Harassment: Never use this tool as part of any attempt to harass, stalk, or otherwise invade someone's privacy. Always act with integrity and respect.
+
+4. Compliance with Laws
+
+    Legal Compliance: Ensure that your use of this tool complies with all applicable laws and regulations, including data protection laws. Unauthorized or illegal use of DNS information can have serious legal consequences.
+    Corporate Policies: If you're using this tool in a corporate environment, make sure your actions comply with your organization's policies regarding DNS lookups and network tools.
+
+5. Avoid Overuse
+
+    Rate Limits: DNS servers have rate limits to prevent abuse. Excessive or automated queries can result in your IP being blocked or restricted. Use the tool sparingly and avoid generating unnecessary load on DNS servers.
+    Fair Use: Limit your queries to what's necessary. Excessive use of DNS lookup tools can be seen as abuse, especially if you're querying domains that are not under your control.
+
+6. Responsibility for Outputs
+
+    Interpretation: Be aware that the results provided by this tool are a snapshot of the DNS records at the time of your query. DNS records can change, and you should always confirm important data through multiple sources.
+    No Warranties: This tool is provided without any warranties. The accuracy of the results depends on the DNS servers being queried, and the tool’s functionality should not be relied upon as the sole source of information.
+
+7. Ethical Considerations
+
+    Transparency: If you're using this tool to perform lookups for others (e.g., clients or colleagues), always be transparent about what you're doing and why.
+    Ethical Usage: Avoid using this tool in any way that could be considered unethical. DNS records are a critical part of the internet's infrastructure, and misusing them can cause harm to individuals and organizations.
+
+8. Security Awareness
+
+    Sensitive Information: Be cautious if you encounter sensitive or unexpected information during a lookup. Do not share or exploit this information in ways that could harm others.
+    Security Best Practices: Always use secure and trusted networks when performing DNS lookups, and be aware of the security implications of the data you retrieve.
+
+By following these guidelines, you can ensure that you're using this DNS lookup tool responsibly and ethically. Remember, tools like these are designed to support learning, troubleshooting, and improving your understanding of DNS systems—not for misuse or unethical activities.
