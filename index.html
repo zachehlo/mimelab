@@ -115,6 +115,7 @@
                 <option value="AAAA">AAAA</option>
                 <option value="CNAME">CNAME</option>
                 <option value="TXT">TXT</option>
+                <option value="SPF">TXT (SPF)</option> <!-- New option for SPF -->
                 <option value="MX">MX</option>
                 <option value="NS">NS</option>
                 <option value="SOA">SOA</option>
@@ -152,7 +153,7 @@
             // Hide previous results and reset animation
             resultsDiv.classList.remove('show');
 
-            fetch(`https://cloudflare-dns.com/dns-query?name=${domain}&type=${recordType}`, {
+            fetch(`https://cloudflare-dns.com/dns-query?name=${domain}&type=TXT`, {
                 method: 'GET',
                 headers: {
                     'Accept': 'application/dns-json'
@@ -162,8 +163,20 @@
             .then(data => {
                 let learnMoreLink = generateLearnMoreLink(recordType);
                 let content = '';
+
                 if (data.Answer) {
-                    content = data.Answer.map(record => `${record.data}`).join('\n');
+                    if (recordType === 'SPF') {
+                        // Filter for SPF records
+                        const spfRecords = data.Answer.filter(record => record.data.startsWith('"v=spf1'));
+                        if (spfRecords.length > 0) {
+                            content = spfRecords.map(record => `${record.data}`).join('\n');
+                        } else {
+                            content = `No SPF records found for ${domain}.`;
+                        }
+                    } else {
+                        // Handle normal TXT records or other types
+                        content = data.Answer.map(record => `${record.data}`).join('\n');
+                    }
                 } else {
                     content = `No records found for ${domain} (${recordType}).`;
                 }
@@ -209,6 +222,7 @@
                 "AAAA": "https://en.wikipedia.org/wiki/AAAA_record",
                 "CNAME": "https://en.wikipedia.org/wiki/CNAME_record",
                 "TXT": "https://en.wikipedia.org/wiki/TXT_record",
+                "SPF": "https://en.wikipedia.org/wiki/Sender_Policy_Framework", // Link for SPF
                 "MX": "https://en.wikipedia.org/wiki/MX_record",
                 "NS": "https://en.wikipedia.org/wiki/Name_server",
                 "SOA": "https://en.wikipedia.org/wiki/SOA_record",
