@@ -3,12 +3,190 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mimelab</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>DNS Lookup Tool</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+            text-align: center;
+            position: relative;
+            transition: transform 0.5s ease-in-out, opacity 0.5s ease-in-out;
+        }
+
+        .container.move-up {
+            transform: translateY(-100px); /* Move up when form is submitted */
+        }
+
+        form {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        label {
+            font-weight: bold;
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        select, input[type="text"], input[type="submit"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            font-size: 16px;
+        }
+
+        input[type="submit"] {
+            background-color: #007BFF;
+            color: #fff;
+            cursor: pointer;
+            border: none;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+
+        #dnsResults {
+            display: none;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+            transform: translateY(20px); /* Start a bit lower */
+            opacity: 0;
+            transition: transform 0.5s ease-in-out, opacity 0.5s ease-in-out;
+        }
+
+        #dnsResults.show {
+            transform: translateY(0); /* Slide up */
+            opacity: 1;
+        }
+
+        #dnsResults h3 {
+            margin-top: 0;
+            color: #333;
+        }
+
+        #dnsResults p {
+            margin: 5px 0;
+            font-size: 14px;
+        }
+
+        #learnMore {
+            margin-top: 15px;
+            font-size: 14px;
+        }
+    </style>
 </head>
 <body>
-    <div class="container">
-        <a href="https://mimelab.org/"><img src="https://raw.githubusercontent.com/zachehlo/mimelab/main/mimelab%20-%20transparent%20-%20edit.png" alt="Logo"></a>
+
+    <div class="container" id="mainContainer">
+        <form id="dnsLookupForm">
+            <label for="recordType">Select DNS Record Type:</label>
+            <select id="recordType" name="recordType" required>
+                <option value="A">A</option>
+                <option value="AAAA">AAAA</option>
+                <option value="CNAME">CNAME</option>
+                <option value="TXT">TXT</option>
+                <option value="MX">MX</option>
+                <option value="NS">NS</option>
+                <option value="SOA">SOA</option>
+                <option value="PTR">PTR</option>
+                <option value="SRV">SRV</option>
+            </select><br>
+
+            <label for="domain">Domain Name:</label>
+            <input type="text" id="domain" name="domain" placeholder="example.com" required><br>
+
+            <input type="submit" value="Lookup DNS Record">
+        </form>
+
+        <div id="dnsResults"></div>
     </div>
+
+    <script>
+        let hasMovedUp = false;  // Track whether the container has already moved up
+
+        document.getElementById('dnsLookupForm').addEventListener('submit', function (event) {
+            event.preventDefault();
+            
+            const form = event.target;
+            const container = document.getElementById('mainContainer');
+            const recordType = document.getElementById('recordType').value;
+            const domain = document.getElementById('domain').value;
+            const resultsDiv = document.getElementById('dnsResults');
+
+            // Only move the container up if it hasn't already been moved up
+            if (!hasMovedUp) {
+                container.classList.add('move-up');
+                hasMovedUp = true;
+            }
+
+            // Hide previous results, reset animation
+            resultsDiv.classList.remove('show');
+
+            fetch(`https://cloudflare-dns.com/dns-query?name=${domain}&type=${recordType}`, {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/dns-json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                let learnMoreLink = generateLearnMoreLink(recordType);
+                if (data.Answer) {
+                    const results = data.Answer.map(record => `<p>${record.data}</p>`).join('');
+                    resultsDiv.innerHTML = `<h3>Results for ${domain} (${recordType}):</h3>${results}<div id="learnMore">${learnMoreLink}</div>`;
+                } else {
+                    resultsDiv.innerHTML = `<p>No records found for ${domain} (${recordType}).</p><div id="learnMore">${learnMoreLink}</div>`;
+                }
+                
+                resultsDiv.style.display = 'block';
+                setTimeout(() => resultsDiv.classList.add('show'), 10); // Trigger the slide-up animation for results
+            })
+            .catch(error => {
+                resultsDiv.innerHTML = `<p>Error fetching DNS records: ${error}</p>`;
+                resultsDiv.style.display = 'block';
+                setTimeout(() => resultsDiv.classList.add('show'), 10); // Trigger the slide-up animation for results
+            });
+        });
+
+        function generateLearnMoreLink(recordType) {
+            const wikiLinks = {
+                "A": "https://en.wikipedia.org/wiki/A_record",
+                "AAAA": "https://en.wikipedia.org/wiki/AAAA_record",
+                "CNAME": "https://en.wikipedia.org/wiki/CNAME_record",
+                "TXT": "https://en.wikipedia.org/wiki/TXT_record",
+                "MX": "https://en.wikipedia.org/wiki/MX_record",
+                "NS": "https://en.wikipedia.org/wiki/Name_server",
+                "SOA": "https://en.wikipedia.org/wiki/SOA_record",
+                "PTR": "https://en.wikipedia.org/wiki/Reverse_DNS_lookup",
+                "SRV": "https://en.wikipedia.org/wiki/SRV_record"
+            };
+
+            return `<a href="${wikiLinks[recordType]}" target="_blank">Click here to learn more about ${recordType} records</a>`;
+        }
+    </script>
+
 </body>
 </html>
