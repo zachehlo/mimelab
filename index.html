@@ -15,7 +15,7 @@
             justify-content: center;
             align-items: center;
             height: 100vh;
-            flex-direction: column; /* Adjust to center content vertically */
+            flex-direction: column;
         }
 
         .logo {
@@ -31,7 +31,7 @@
         }
 
         .container.move-up {
-            transform: translateY(-100px); /* Move up when form is submitted */
+            transform: translateY(-100px);
         }
 
         form {
@@ -50,15 +50,14 @@
         }
 
         select, input[type="text"], input[type="submit"] {
-            width: calc(100% - 20px); /* Adjust the width to account for padding */
+            width: calc(100% - 20px);
             padding: 10px;
             margin-bottom: 15px;
             border-radius: 4px;
             border: 1px solid #ddd;
             font-size: 16px;
-            box-sizing: border-box; /* Ensure padding is included in the width calculation */
+            box-sizing: border-box;
         }
-
 
         input[type="submit"] {
             background-color: #007BFF;
@@ -78,13 +77,13 @@
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             margin-top: 20px;
-            transform: translateY(20px); /* Start slightly lower */
+            transform: translateY(20px);
             opacity: 0;
             transition: transform 0.5s ease-in-out, opacity 0.5s ease-in-out;
         }
 
         #dnsResults.show {
-            transform: translateY(0); /* Slide up */
+            transform: translateY(0);
             opacity: 1;
         }
 
@@ -96,11 +95,10 @@
         #dnsResults p {
             margin: 5px 0;
             font-size: 14px;
-            white-space: pre-wrap; /* Preserve whitespace formatting */
-            word-break: break-all; /* Break long words anywhere if needed */
-            overflow-wrap: break-word; /* Break words to prevent overflow */
+            white-space: pre-wrap;
+            word-break: break-all;
+            overflow-wrap: break-word;
         }
-
 
         #learnMore {
             margin-top: 15px;
@@ -116,7 +114,7 @@
 </head>
 <body>
 
-    <!-- Logo at the top of the page 
+        <!-- Logo, removed for now
     <a href="https://github.com/zachehlo/mimelab/blob/main/responsible-usage.txt" target="_blank">
         <img src="https://raw.githubusercontent.com/zachehlo/mimelab/main/mimelab.png" alt="MimeLab Logo" class="logo">
     </a>
@@ -130,7 +128,7 @@
                 <option value="AAAA">AAAA</option>
                 <option value="CNAME">CNAME</option>
                 <option value="TXT">TXT</option>
-                <option value="SPF">TXT (SPF)</option> <!-- New option for SPF -->
+                <option value="SPF">TXT (SPF)</option>
                 <option value="MX">MX</option>
                 <option value="NS">NS</option>
                 <option value="SOA">SOA</option>
@@ -147,9 +145,8 @@
         <div id="dnsResults"></div>
     </div>
 
-    <!-- Add your existing JavaScript below -->
     <script>
-        let hasMovedUp = false;  // Track whether the container has already moved up
+        let hasMovedUp = false;
 
         document.getElementById('dnsLookupForm').addEventListener('submit', function (event) {
             event.preventDefault();
@@ -160,16 +157,13 @@
             const domain = document.getElementById('domain').value;
             const resultsDiv = document.getElementById('dnsResults');
 
-            // Only move the container up if it hasn't already been moved up
             if (!hasMovedUp) {
                 container.classList.add('move-up');
                 hasMovedUp = true;
             }
 
-            // Hide previous results and reset animation
             resultsDiv.classList.remove('show');
 
-            // Determine the query type
             let queryType = recordType === 'SPF' ? 'TXT' : recordType;
 
             fetch(`https://cloudflare-dns.com/dns-query?name=${domain}&type=${queryType}`, {
@@ -185,7 +179,6 @@
 
                 if (data.Answer) {
                     if (recordType === 'SPF') {
-                        // Filter for SPF records
                         const spfRecords = data.Answer.filter(record => record.data.startsWith('"v=spf1'));
                         if (spfRecords.length > 0) {
                             content = spfRecords.map(record => `${record.data}`).join('\n');
@@ -193,7 +186,6 @@
                             content = `No SPF records found for ${domain}.`;
                         }
                     } else {
-                        // Handle all other record types, including normal TXT records
                         content = data.Answer.map(record => `${record.data}`).join('\n');
                     }
                 } else {
@@ -205,13 +197,13 @@
                 setTimeout(() => {
                     resultsDiv.classList.add('show');
                     typeOutText('typedResults', content, 'learnMore');
-                }, 10); // Trigger the slide-up animation for results
+                }, 10);
             })
             .catch(error => {
                 const content = `Error fetching DNS records: ${error}`;
                 resultsDiv.innerHTML = `<h3>Results for ${domain} (${recordType}):</h3><p id="typedResults">${content}</p>`;
                 resultsDiv.style.display = 'block';
-                setTimeout(() => resultsDiv.classList.add('show'), 10); // Trigger the slide-up animation for results
+                setTimeout(() => resultsDiv.classList.add('show'), 10);
             });
         });
 
@@ -226,12 +218,11 @@
                     i++;
                     setTimeout(type, speed);
                 } else {
-                    // After typing is complete, trigger the fade-in of the link
                     linkElement.classList.add('show');
                 }
             }
 
-            element.innerHTML = ''; // Clear previous content
+            element.innerHTML = '';
             type();
         }
 
@@ -241,7 +232,7 @@
                 "AAAA": "https://en.wikipedia.org/wiki/AAAA_record",
                 "CNAME": "https://en.wikipedia.org/wiki/CNAME_record",
                 "TXT": "https://en.wikipedia.org/wiki/TXT_record",
-                "SPF": "https://en.wikipedia.org/wiki/Sender_Policy_Framework", // Link for SPF
+                "SPF": "https://en.wikipedia.org/wiki/Sender_Policy_Framework",
                 "MX": "https://en.wikipedia.org/wiki/MX_record",
                 "NS": "https://en.wikipedia.org/wiki/Name_server",
                 "SOA": "https://en.wikipedia.org/wiki/SOA_record",
