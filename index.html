@@ -136,65 +136,69 @@
         let hasMovedUp = false;  // Track whether the container has already moved up
 
         document.getElementById('dnsLookupForm').addEventListener('submit', function (event) {
-            event.preventDefault();
-            
-            const form = event.target;
-            const container = document.getElementById('mainContainer');
-            const recordType = document.getElementById('recordType').value;
-            const domain = document.getElementById('domain').value;
-            const resultsDiv = document.getElementById('dnsResults');
+        event.preventDefault();
+        
+        const form = event.target;
+        const container = document.getElementById('mainContainer');
+        const recordType = document.getElementById('recordType').value;
+        const domain = document.getElementById('domain').value;
+        const resultsDiv = document.getElementById('dnsResults');
 
-            // Only move the container up if it hasn't already been moved up
-            if (!hasMovedUp) {
-                container.classList.add('move-up');
-                hasMovedUp = true;
+        // Only move the container up if it hasn't already been moved up
+        if (!hasMovedUp) {
+            container.classList.add('move-up');
+            hasMovedUp = true;
+        }
+
+        // Hide previous results and reset animation
+        resultsDiv.classList.remove('show');
+
+        // Determine the query type
+        let queryType = recordType === 'SPF' ? 'TXT' : recordType;
+
+        fetch(`https://cloudflare-dns.com/dns-query?name=${domain}&type=${queryType}`, {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/dns-json'
             }
+        })
+        .then(response => response.json())
+        .then(data => {
+            let learnMoreLink = generateLearnMoreLink(recordType);
+            let content = '';
 
-            // Hide previous results and reset animation
-            resultsDiv.classList.remove('show');
-
-            fetch(`https://cloudflare-dns.com/dns-query?name=${domain}&type=TXT`, {
-                method: 'GET',
-                headers: {
-                    'Accept': 'application/dns-json'
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                let learnMoreLink = generateLearnMoreLink(recordType);
-                let content = '';
-
-                if (data.Answer) {
-                    if (recordType === 'SPF') {
-                        // Filter for SPF records
-                        const spfRecords = data.Answer.filter(record => record.data.startsWith('"v=spf1'));
-                        if (spfRecords.length > 0) {
-                            content = spfRecords.map(record => `${record.data}`).join('\n');
-                        } else {
-                            content = `No SPF records found for ${domain}.`;
-                        }
+            if (data.Answer) {
+                if (recordType === 'SPF') {
+                    // Filter for SPF records
+                    const spfRecords = data.Answer.filter(record => record.data.startsWith('"v=spf1'));
+                    if (spfRecords.length > 0) {
+                        content = spfRecords.map(record => `${record.data}`).join('\n');
                     } else {
-                        // Handle normal TXT records or other types
-                        content = data.Answer.map(record => `${record.data}`).join('\n');
+                        content = `No SPF records found for ${domain}.`;
                     }
                 } else {
-                    content = `No records found for ${domain} (${recordType}).`;
+                    // Handle all other record types, including normal TXT records
+                    content = data.Answer.map(record => `${record.data}`).join('\n');
                 }
+            } else {
+                content = `No records found for ${domain} (${recordType}).`;
+            }
 
-                resultsDiv.innerHTML = `<h3>Results for ${domain} (${recordType}):</h3><p id="typedResults"></p><div id="learnMore" class="learnMore">${learnMoreLink}</div>`;
-                resultsDiv.style.display = 'block';
-                setTimeout(() => {
-                    resultsDiv.classList.add('show');
-                    typeOutText('typedResults', content, 'learnMore');
-                }, 10); // Trigger the slide-up animation for results
-            })
-            .catch(error => {
-                const content = `Error fetching DNS records: ${error}`;
-                resultsDiv.innerHTML = `<h3>Results for ${domain} (${recordType}):</h3><p id="typedResults">${content}</p>`;
-                resultsDiv.style.display = 'block';
-                setTimeout(() => resultsDiv.classList.add('show'), 10); // Trigger the slide-up animation for results
-            });
+            resultsDiv.innerHTML = `<h3>Results for ${domain} (${recordType}):</h3><p id="typedResults"></p><div id="learnMore" class="learnMore">${learnMoreLink}</div>`;
+            resultsDiv.style.display = 'block';
+            setTimeout(() => {
+                resultsDiv.classList.add('show');
+                typeOutText('typedResults', content, 'learnMore');
+            }, 10); // Trigger the slide-up animation for results
+        })
+        .catch(error => {
+            const content = `Error fetching DNS records: ${error}`;
+            resultsDiv.innerHTML = `<h3>Results for ${domain} (${recordType}):</h3><p id="typedResults">${content}</p>`;
+            resultsDiv.style.display = 'block';
+            setTimeout(() => resultsDiv.classList.add('show'), 10); // Trigger the slide-up animation for results
         });
+    });
+
 
         function typeOutText(elementId, text, linkId, speed = 20) {
             const element = document.getElementById(elementId);
