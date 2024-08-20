@@ -46,7 +46,7 @@ This DNS lookup tool is designed to help you retrieve specific DNS records for a
 By following these guidelines, you can ensure that you're using this DNS lookup tool responsibly and ethically. Remember, tools like these are designed to support learning, troubleshooting, and improving your understanding of DNS systems—not for misuse or unethical activities. 
 
 DISCLAIMER:
-The information and tools provided on this site are for educational and informational purposes only. While we strive to ensure the accuracy and reliability of the content, we make no guarantees or warranties, express or implied, about the completeness, accuracy, reliability, suitability, or availability of the information contained on this site for any purpose.
+The information and tools provided on this site are for educational and informational purposes only. While I strive to ensure the accuracy and reliability of the content, I make no guarantees or warranties, express or implied, about the completeness, accuracy, reliability, suitability, or availability of the information contained on this site for any purpose.
 
 By using this site, you acknowledge and agree that your use of the tools and information is at your own risk. The site owner, authors, and affiliates take no responsibility and assume no liability for any damages, losses, or harm that may arise from your use of the site, including but not limited to data loss, security breaches, or other negative consequences.
 
