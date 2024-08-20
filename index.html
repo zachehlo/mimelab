@@ -15,7 +15,11 @@
             justify-content: center;
             align-items: center;
             height: 100vh;
-            overflow: hidden;
+            flex-direction: column; /* Adjust to center content vertically */
+        }
+
+        .logo {
+            margin-bottom: 20px;
         }
 
         .container {
@@ -107,6 +111,11 @@
 </head>
 <body>
 
+    <!-- Logo at the top of the page -->
+    <a href="https://github.com/zachehlo/mimelab/blob/main/responsible-usage.txt" target="_blank">
+        <img src="https://raw.githubusercontent.com/zachehlo/mimelab/main/mimelab.png" alt="MimeLab Logo" class="logo">
+    </a>
+
     <div class="container" id="mainContainer">
         <form id="dnsLookupForm">
             <label for="recordType">Select DNS Record Type:</label>
@@ -132,73 +141,73 @@
         <div id="dnsResults"></div>
     </div>
 
+    <!-- Add your existing JavaScript below -->
     <script>
         let hasMovedUp = false;  // Track whether the container has already moved up
 
         document.getElementById('dnsLookupForm').addEventListener('submit', function (event) {
-        event.preventDefault();
-        
-        const form = event.target;
-        const container = document.getElementById('mainContainer');
-        const recordType = document.getElementById('recordType').value;
-        const domain = document.getElementById('domain').value;
-        const resultsDiv = document.getElementById('dnsResults');
+            event.preventDefault();
+            
+            const form = event.target;
+            const container = document.getElementById('mainContainer');
+            const recordType = document.getElementById('recordType').value;
+            const domain = document.getElementById('domain').value;
+            const resultsDiv = document.getElementById('dnsResults');
 
-        // Only move the container up if it hasn't already been moved up
-        if (!hasMovedUp) {
-            container.classList.add('move-up');
-            hasMovedUp = true;
-        }
-
-        // Hide previous results and reset animation
-        resultsDiv.classList.remove('show');
-
-        // Determine the query type
-        let queryType = recordType === 'SPF' ? 'TXT' : recordType;
-
-        fetch(`https://cloudflare-dns.com/dns-query?name=${domain}&type=${queryType}`, {
-            method: 'GET',
-            headers: {
-                'Accept': 'application/dns-json'
+            // Only move the container up if it hasn't already been moved up
+            if (!hasMovedUp) {
+                container.classList.add('move-up');
+                hasMovedUp = true;
             }
-        })
-        .then(response => response.json())
-        .then(data => {
-            let learnMoreLink = generateLearnMoreLink(recordType);
-            let content = '';
 
-            if (data.Answer) {
-                if (recordType === 'SPF') {
-                    // Filter for SPF records
-                    const spfRecords = data.Answer.filter(record => record.data.startsWith('"v=spf1'));
-                    if (spfRecords.length > 0) {
-                        content = spfRecords.map(record => `${record.data}`).join('\n');
+            // Hide previous results and reset animation
+            resultsDiv.classList.remove('show');
+
+            // Determine the query type
+            let queryType = recordType === 'SPF' ? 'TXT' : recordType;
+
+            fetch(`https://cloudflare-dns.com/dns-query?name=${domain}&type=${queryType}`, {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/dns-json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                let learnMoreLink = generateLearnMoreLink(recordType);
+                let content = '';
+
+                if (data.Answer) {
+                    if (recordType === 'SPF') {
+                        // Filter for SPF records
+                        const spfRecords = data.Answer.filter(record => record.data.startsWith('"v=spf1'));
+                        if (spfRecords.length > 0) {
+                            content = spfRecords.map(record => `${record.data}`).join('\n');
+                        } else {
+                            content = `No SPF records found for ${domain}.`;
+                        }
                     } else {
-                        content = `No SPF records found for ${domain}.`;
+                        // Handle all other record types, including normal TXT records
+                        content = data.Answer.map(record => `${record.data}`).join('\n');
                     }
                 } else {
-                    // Handle all other record types, including normal TXT records
-                    content = data.Answer.map(record => `${record.data}`).join('\n');
+                    content = `No records found for ${domain} (${recordType}).`;
                 }
-            } else {
-                content = `No records found for ${domain} (${recordType}).`;
-            }
 
-            resultsDiv.innerHTML = `<h3>Results for ${domain} (${recordType}):</h3><p id="typedResults"></p><div id="learnMore" class="learnMore">${learnMoreLink}</div>`;
-            resultsDiv.style.display = 'block';
-            setTimeout(() => {
-                resultsDiv.classList.add('show');
-                typeOutText('typedResults', content, 'learnMore');
-            }, 10); // Trigger the slide-up animation for results
-        })
-        .catch(error => {
-            const content = `Error fetching DNS records: ${error}`;
-            resultsDiv.innerHTML = `<h3>Results for ${domain} (${recordType}):</h3><p id="typedResults">${content}</p>`;
-            resultsDiv.style.display = 'block';
-            setTimeout(() => resultsDiv.classList.add('show'), 10); // Trigger the slide-up animation for results
+                resultsDiv.innerHTML = `<h3>Results for ${domain} (${recordType}):</h3><p id="typedResults"></p><div id="learnMore" class="learnMore">${learnMoreLink}</div>`;
+                resultsDiv.style.display = 'block';
+                setTimeout(() => {
+                    resultsDiv.classList.add('show');
+                    typeOutText('typedResults', content, 'learnMore');
+                }, 10); // Trigger the slide-up animation for results
+            })
+            .catch(error => {
+                const content = `Error fetching DNS records: ${error}`;
+                resultsDiv.innerHTML = `<h3>Results for ${domain} (${recordType}):</h3><p id="typedResults">${content}</p>`;
+                resultsDiv.style.display = 'block';
+                setTimeout(() => resultsDiv.classList.add('show'), 10); // Trigger the slide-up animation for results
+            });
         });
-    });
-
 
         function typeOutText(elementId, text, linkId, speed = 20) {
             const element = document.getElementById(elementId);
