@@ -56,6 +56,7 @@
             font-weight: bold;
             margin-bottom: 5px;
             display: block;
+            color: #333;
         }
 
         select, input[type="text"], input[type="submit"] {
@@ -66,6 +67,8 @@
             border: 1px solid #ddd;
             font-size: 16px;
             box-sizing: border-box;
+            color: #333;
+            background-color: #fff; /* Keeps background color the same */
         }
 
         input[type="submit"] {
@@ -135,16 +138,69 @@
         #disclaimer a:hover {
             text-decoration: underline;
         }
+
+        /* Dark Mode Styles */
+        body.dark-mode {
+            background-color: #333;
+            color: #f4f4f4;
+        }
+
+        form.dark-mode {
+            background-color: #444;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+        }
+
+        /* Keep the input boxes the same as they were in light mode */
+        select.dark-mode,
+        input[type="text"].dark-mode {
+            background-color: #fff; /* Keeps the input background color the same */
+            color: #333;
+            border-color: #ddd;
+        }
+
+        input[type="submit"].dark-mode {
+            background-color: #1a73e8;
+            color: #fff;
+        }
+
+        #dnsResults.dark-mode {
+            background-color: #444;
+            color: #f4f4f4; /* Makes the result text lighter for better readability */
+        }
+
+        #dnsResults.dark-mode h3 {
+            color: #f4f4f4; /* Ensures the heading is also visible in dark mode */
+        }
+
+        #learnMore.dark-mode a {
+            color: #1a73e8; /* Keeps the link color consistent and readable in dark mode */
+        }
+
+        #disclaimer.dark-mode a,
+        #darkModeToggle.dark-mode {
+            color: #ccc;
+        }
+
+        #darkModeToggle {
+            position: fixed;
+            bottom: 10px;
+            left: 10px;
+            font-size: 12px;
+            cursor: pointer;
+            color: #555;
+            text-decoration: none;
+        }
+
+        #darkModeToggle:hover {
+            text-decoration: underline;
+        }
     </style>
-  <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
 </head>
 <body>
 
-        <!-- Logo, removed for now
-    <a href="https://github.com/zachehlo/mimelab/blob/main/responsible-usage.txt" target="_blank">
-        <img src="https://raw.githubusercontent.com/zachehlo/mimelab/main/mimelab.png" alt="MimeLab Logo" class="logo">
-    </a>
-    -->
+    <!-- Add the dark mode toggle button -->
+    <div id="darkModeToggle">Dark Mode</div>
 
     <div class="container" id="mainContainer">
         <form id="dnsLookupForm">
@@ -247,6 +303,25 @@
                 resultsDiv.style.display = 'block';
                 setTimeout(() => resultsDiv.classList.add('show'), 10);
             });
+        });
+
+        document.getElementById('darkModeToggle').addEventListener('click', function() {
+            document.body.classList.toggle('dark-mode');
+            document.getElementById('mainContainer').classList.toggle('dark-mode');
+            document.getElementById('dnsResults').classList.toggle('dark-mode');
+            document.getElementById('disclaimer').classList.toggle('dark-mode');
+            document.getElementById('darkModeToggle').classList.toggle('dark-mode');
+
+            // Add the dark-mode class to form elements, but keep their original styling
+            const formElements = document.querySelectorAll('select, input[type="text"], input[type="submit"]');
+            formElements.forEach(el => el.classList.toggle('dark-mode'));
+
+            // Change button text based on mode
+            if (document.body.classList.contains('dark-mode')) {
+                document.getElementById('darkModeToggle').textContent = 'Light Mode';
+            } else {
+                document.getElementById('darkModeToggle').textContent = 'Dark Mode';
+            }
         });
 
         function typeOutText(elementId, text, linkId, speed = 20) {
