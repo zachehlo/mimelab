@@ -154,6 +154,7 @@
                 <option value="CNAME">CNAME</option>
                 <option value="TXT">TXT</option>
                 <option value="SPF">TXT (SPF)</option>
+                <option value="DMARC">TXT (DMARC)</option>
                 <option value="MX">MX</option>
                 <option value="NS">NS</option>
                 <option value="SOA">SOA</option>
@@ -183,7 +184,7 @@
             const form = event.target;
             const container = document.getElementById('mainContainer');
             const recordType = document.getElementById('recordType').value;
-            const domain = document.getElementById('domain').value;
+            let domain = document.getElementById('domain').value;
             const resultsDiv = document.getElementById('dnsResults');
 
             if (!hasMovedUp) {
@@ -193,7 +194,11 @@
 
             resultsDiv.classList.remove('show');
 
-            let queryType = recordType === 'SPF' ? 'TXT' : recordType;
+            let queryType = (recordType === 'SPF' || recordType === 'DMARC') ? 'TXT' : recordType;
+            
+            if (recordType === 'DMARC') {
+                domain = `_dmarc.${domain}`;
+            }
 
             fetch(`https://cloudflare-dns.com/dns-query?name=${domain}&type=${queryType}`, {
                 method: 'GET',
@@ -213,6 +218,13 @@
                             content = spfRecords.map(record => `${record.data}`).join('\n');
                         } else {
                             content = `No SPF records found for ${domain}.`;
+                        }
+                    } else if (recordType === 'DMARC') {
+                        const dmarcRecords = data.Answer.filter(record => record.data.startsWith('"v=DMARC1'));
+                        if (dmarcRecords.length > 0) {
+                            content = dmarcRecords.map(record => `${record.data}`).join('\n');
+                        } else {
+                            content = `No DMARC records found for ${domain}.`;
                         }
                     } else {
                         content = data.Answer.map(record => `${record.data}`).join('\n');
@@ -262,6 +274,7 @@
                 "CNAME": "https://en.wikipedia.org/wiki/CNAME_record",
                 "TXT": "https://en.wikipedia.org/wiki/TXT_record",
                 "SPF": "https://en.wikipedia.org/wiki/Sender_Policy_Framework",
+                "DMARC": "https://en.wikipedia.org/wiki/DMARC",
                 "MX": "https://en.wikipedia.org/wiki/MX_record",
                 "NS": "https://en.wikipedia.org/wiki/Name_server",
                 "SOA": "https://en.wikipedia.org/wiki/SOA_record",
